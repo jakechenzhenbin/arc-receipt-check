@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Check an Arc Mainnet USDC receipt against a payee and amount. Count canonical transfers once and export the evidence.">
+  <meta name="theme-color" content="#102522">
+  <title>Arc Receipt Check</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./app.mjs"></script>
+</head>
+<body>
+  <header class="masthead"><a class="wordmark" href="./">ARC <span>RECEIPT CHECK</span></a><span class="network">MAINNET · 5042</span></header>
+  <main>
+    <div class="intro"><div><p class="eyebrow">01 / PAYMENT VERIFICATION</p><h1>Was the USDC<br>actually received?</h1></div><p class="lede">Check the recipient and amount against a final Arc transaction. One payment, counted once.</p></div>
+    <div class="workspace">
+      <section class="entry" aria-labelledby="input-title">
+        <div class="section-top"><h2 id="input-title">Check a payment</h2><span class="stamp">READ ONLY</span></div>
+        <form id="verify-form">
+          <label for="tx-hash">Transaction hash</label><input id="tx-hash" name="hash" required autocomplete="off" spellcheck="false" placeholder="0x…" maxlength="66">
+          <label for="recipient">Expected recipient</label><input id="recipient" name="recipient" required autocomplete="off" spellcheck="false" placeholder="0x wallet address" maxlength="42">
+          <label for="amount">Expected amount <span>USDC</span></label><input id="amount" name="amount" required inputmode="decimal" autocomplete="off" placeholder="20.00" maxlength="98">
+          <label for="reference">Invoice reference <span>optional · stays on this device</span></label><input id="reference" name="reference" autocomplete="off" placeholder="INV-001" maxlength="120">
+          <button class="primary" id="verify-button" type="submit">Verify receipt</button>
+        </form>
+        <button class="example-button" id="example-button" type="button">Use a public mainnet example</button>
+        <p id="example-note" class="small" hidden>This is a third-party public transaction, not a payment to you. Press Verify receipt to fetch it live.</p>
+        <p class="privacy">No wallet connection or signature. Only the transaction hash goes to Arc's public RPC. No saved history or analytics.</p>
+      </section>
+      <section class="receipt" aria-labelledby="result-title" aria-live="polite" aria-busy="false" id="receipt-panel">
+        <div class="section-top"><h2 id="result-title">Receipt</h2><span class="folio">ARC / USDC</span></div>
+        <div id="empty-state" class="empty"><span class="empty-number">—</span><p>A transaction hash is a starting point.<br>The recipient and amount complete the check.</p><span class="empty-rule"></span><p class="small">Native and ERC-20 USDC use the same balance. This check counts the native system's transfer logs once, at full precision.</p></div>
+        <div id="loading-state" class="loading" hidden><span class="loading-line"></span><p>Reading the final mainnet receipt…</p><p class="small">Checking network, transaction and block.</p></div>
+        <div id="error-state" class="error" hidden><h3>Could not verify</h3><p id="error-message"></p><p class="small">No payment conclusion has been made.</p></div>
+        <div id="result-state" hidden>
+          <div class="verdict" id="verdict"></div><p class="amount-caption">NET USDC RECEIVED BY EXPECTED RECIPIENT</p><div class="money"><span id="net-amount"></span><span class="currency">USDC</span></div>
+          <p id="verdict-detail" class="verdict-detail"></p>
+          <dl class="facts" id="facts"></dl>
+          <div class="actions"><button type="button" id="download-button">Download evidence JSON</button><button type="button" id="print-button">Print receipt</button><a id="explorer-link" target="_blank" rel="noopener noreferrer">View on Arc Explorer</a></div>
+          <details class="transfers"><summary id="transfer-summary">USDC movements</summary><div id="transfer-list"></div></details>
+          <p class="small" id="count-note"></p>
+          <p class="receipt-note">The reference is your label, not a unique on-chain invoice ID. Reconcile reuse of a transaction separately. This check does not authenticate the payer's identity or issue a signed attestation.</p>
+        </div>
+      </section>
+    </div>
+    <details class="method"><summary>02 / How the check works</summary><div><p>Arc emits an 18-decimal native USDC Transfer event for each explicit USDC movement. An ERC-20 call also emits a 6-decimal mirror event. Adding both would double-count the payment.</p><p>We use only the canonical native system emitter, exclude mints, burns and self-transfers from invoice amounts, and subtract explicit transfers out of the recipient in the same transaction. Gas is calculated separately from the receipt.</p><p>A successful transaction may still pay the wrong recipient or amount. “Amount matched” means the net explicit USDC credit equals the amount entered. It does not establish a contract, unique invoice allocation, or payer identity. Results rely on the public RPC; there is no independent node or cryptographic receipt-proof verification.</p><a href="https://docs.arc.io/arc/references/usdc-system-events" target="_blank" rel="noopener noreferrer">Arc USDC event reference</a></div></details>
+  </main>
+  <footer><span>ARC RECEIPT CHECK · Independent open-source utility</span><span>Amounts retain up to 18 decimal places</span></footer>
+</body>
+</html>
