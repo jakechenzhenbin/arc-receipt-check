@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test tests/receipt.test.mjs",
-    "check": "node --check dist/core.mjs && node --check dist/app.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "check": "node --check dist/core.mjs && node --check dist/app.mjs && node --check dist/rpc.mjs",
     "serve": "python -m http.server 8789 --bind 127.0.0.1 --directory dist"
   }
 }

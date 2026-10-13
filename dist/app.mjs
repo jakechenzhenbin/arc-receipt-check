@@ -1,4 +1,5 @@
 import { RPC_URL, hash, address, units18, verifyReceipt } from './core.mjs';
+import { readReceiptData } from './rpc.mjs';
 const $ = id => document.getElementById(id);
 let evidence = null, busy = false, requestId = 0;
 const states = ['empty', 'loading', 'error', 'result'];
@@ -70,12 +71,7 @@ $('verify-form').addEventListener('submit',async event=>{
     busy=true; $('verify-button').disabled=true; $('example-button').disabled=true;
     for (const input of $('verify-form').querySelectorAll('input')) input.disabled=true;
     setState('loading');
-    const chainId = await rpc('eth_chainId',[]);
-    if (BigInt(chainId) !== 5042n) throw new Error('The endpoint is not Arc Mainnet (5042).');
-    const [transaction,receipt] = await Promise.all([rpc('eth_getTransactionByHash',[expected.hash]),rpc('eth_getTransactionReceipt',[expected.hash])]);
-    if (!transaction || !receipt) throw new Error('No final receipt was found on Arc Mainnet. The transaction may be pending, missing, or on another network.');
-    const block = await rpc('eth_getBlockByHash',[receipt.blockHash,false]);
-    const raw = {chainId,transaction,receipt,block};
+    const raw = await readReceiptData(rpc,expected.hash);
     const result = verifyReceipt(raw,expected);
     evidence = {verification:result,expected,raw}; render(result);
   } catch (error) { $('error-message').textContent=error.message; setState('error'); }

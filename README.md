@@ -36,7 +36,7 @@ The fixtures include a public third-party mainnet transaction captured on 2026-1
 
 It has one canonical system transfer and one ERC-20 mirror. The sample net credit is 672.915391 USDC and gas is 0.0066900000003345 USDC. **This is not a payment to the builder or evidence of earnings.** `prepare-example.mjs` derives the public example and expected result from that captured receipt.
 
-16 automated tests cover the public fixture and failure cases. Browser UI verification was not completed because access to the local browser preview was denied. Syntax, form asset links, HTML structure and static HTTP delivery are checked separately. A captured fixture does not establish that the live RPC will always be reachable from every user's network.
+21 automated tests cover the public fixture, failure cases, and historical transaction lookup. On October 14, the public browser flow exposed a node that returned the old receipt and block but no transaction from `eth_getTransactionByHash`. The app now falls back to `eth_getTransactionByBlockHashAndIndex`, using the real receipt's block hash and transaction index. Transaction hash, chain and block consistency checks still apply; unavailable metadata never yields a payment verdict. Live browser verification of this revision is tracked separately from automated tests. A captured fixture does not establish that the live RPC will always be reachable from every user's network.
 
 ## Boundaries
 
